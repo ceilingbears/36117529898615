@@ -2,6 +2,7 @@
   "name": "bee game",
   "short_name": "beegame",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#262200",
   "icons": [
