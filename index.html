@@ -36,7 +36,7 @@
         }
         button {
         	font-size: 1.2rem;
-        	padding: 15px 30px;
+        	padding: 10px 10px;
         }
         .play-button {
         	background-color: var(--color-1);
@@ -84,7 +84,8 @@
 			width: 69px;
 		}
 		.hex-cell:active {
-			opacity: 75%;
+			background-color: var(--white);
+			color: var(--dark);
 		}
 		.hex-letter {
 			animation-duration: 0.5s;
@@ -132,17 +133,16 @@
 			display: flex;
 			align-items: center;
 			margin: auto;
-			margin-bottom: 10px;
+			margin-bottom: 5px;
 		}
 		.row-controls {
   			justify-content: center;
-			gap: 10px;
+			gap: 15px;
 		}
 		.row-controls button {
 			flex: 1 1 0px;
 		}
 		.edit-controls {
-			margin-top: 40px;
 			margin-bottom: 0;
 		}
         .edit-area {
@@ -162,6 +162,7 @@
 		}
 		.edit-input {
 			border: 0;
+			font-size: 16px;
 			height: 25px;
 			width: 100%;
 			margin: 3px;
@@ -209,6 +210,7 @@
 			text-align: center;
 			text-transform: lowercase;
 			margin: 15px auto;
+			margin-top: 70px;
 		}
 		.error-text {
 			animation-duration: 0.2s;
@@ -554,9 +556,19 @@
         const rankPercents = [0, 0.025, 0.07, 0.12, 0.21, 0.35, 0.56, 0.71, 1];
         let rank = 0;
 
+        function replaceChildren(parentEl, ...childEls) {
+			if (!parentEl) return;
+			while (parentEl.firstChild) {
+			    parentEl.removeChild(parentEl.firstChild);
+			}
+			if (!childEls) return;
+			childEls.forEach(el => parentEl.appendChild(el));
+        }
+
         function renderLetters(input) {
         	let localLetters;
         	if (input) {
+        		input = input.toLowerCase();
         		localLetters = input;
         	}
         	else {
@@ -564,7 +576,7 @@
         	}
         	if (localLetters.length === 7) {
         		if (input) {
-        			localStorage.setItem('letters', input.toLowerCase());
+        			localStorage.setItem('letters', input);
         		}
             	goldLetter = localLetters[0];
                 letters = localLetters.substring(1).split('');
@@ -642,7 +654,7 @@
         		scoreEl.classList.add('score-'+score);
         	}
         	const scoreBarEl = document.getElementById('new-score');
-        	scoreBarEl.replaceChildren(scoreEl);
+        	replaceChildren(scoreBarEl, scoreEl);
         }
 
         let currentRank = 0;
@@ -668,12 +680,12 @@
 	        	rankEl.style.left = ((i-1)/(rankPercents.length-1)*100) + '%';
 	        	rankChilds.push(rankEl);
 			}
-			document.getElementById('rank-bar').replaceChildren(...rankChilds);
+			replaceChildren(document.getElementById('rank-bar'), ...rankChilds);
         }
 
         function updateWordList(savedWords) {
         	const wordsContainer = document.getElementById('words-container');
-        	wordsContainer.replaceChildren();
+        	replaceChildren(wordsContainer);
         	const sortedWords = savedWords.toSorted((w1, w2) => {
         		if (w1.length == w2.length) {
         			return w1 - w2;
@@ -707,7 +719,7 @@
         	const error = document.createElement('div');
         	error.className = 'error-text';
         	error.textContent = errorText;
-        	document.getElementById('error-bar').replaceChildren(error);
+        	replaceChildren(document.getElementById('error-bar'), error);
         }
 
         function updateDisplay() {
@@ -719,7 +731,7 @@
             	l.className = letter === goldLetter ? 'letter gold-letter' : 'letter';
             	letterEls.push(l);
             });
-            document.getElementById('current-word').replaceChildren(...letterEls);
+            replaceChildren(document.getElementById('current-word'), ...letterEls);
         }
 
         function clearWord() {
@@ -859,6 +871,7 @@
                 toggleEdit(false);
                 localStorage.removeItem('savedWords');
                 clearWord();
+                document.getElementById('last-word').textContent = '';
                 renderScore([]);
             }
         }
