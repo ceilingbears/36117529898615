@@ -27,6 +27,7 @@
         	background-color: var(--color-1);
         	padding: 0;
         	margin: 0 8px;
+        	touch-action: manipulation;
         }
         #game-area {
         	max-width: 500px;
@@ -433,6 +434,24 @@
 			}
 			100% {
 				width: 12.6%;
+			}
+		}
+		@keyframes new-score-popup-1 {
+			0% {
+				opacity: 0;
+				top: 20px;
+			}
+			20% {
+				opacity: 100%;
+				top: 0px;
+			}
+			80% {
+				opacity: 100%;
+				top: 0px;
+			}
+			100% {
+				opacity: 0;
+				top: 0px;
 			}
 		}
 		@keyframes new-score-popup {
