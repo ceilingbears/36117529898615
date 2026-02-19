@@ -2,7 +2,7 @@ const VERSION = "v1";
 const CACHE_NAME = `bee-cache-${VERSION}`;
 const ASSETS = [
   '/',
-  '/spellbee.html',
+  '/index.html',
   '/lib/english-final.txt'
 ];
 
