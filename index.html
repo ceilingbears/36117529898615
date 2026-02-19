@@ -732,6 +732,9 @@
             	l.className = letter === goldLetter ? 'letter gold-letter' : 'letter';
             	letterEls.push(l);
             });
+            if (letterEls.length == 0) {
+            	letterEls.push(document.createElement('span'));
+            }
             replaceChildren(document.getElementById('current-word'), ...letterEls);
         }
 
