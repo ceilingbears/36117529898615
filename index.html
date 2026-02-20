@@ -20,8 +20,8 @@
 		  --color-7: #D9C300;
 		  --color-7m: #EBD300;
 		  --color-s: #FFE600;
-		  --white: #F9F8F6;
-		  --dark: #0C0B00;
+		  --light: #F9F8F6;
+		  --dark: #111000;
 		  --light-gray: #4C4C4C;
 		}
         body {
@@ -41,17 +41,18 @@
         }
         .play-button {
         	background-color: var(--color-1);
-        	border: 1px solid var(--white);
-        	color: var(--white);
+        	border: 1px solid var(--light);
+        	color: var(--light);
         	margin: auto;
         }
         .play-button:active {
-        	background-color: var(--light-gray);
+        	background-color: var(--color-1);
         }
         .submit-button {
         	min-width: 50%;
         }
         .shuffle-button {
+        	background-color: transparent;
         	border: none;
         	border-radius: 50%;
         	padding: 0;
@@ -74,7 +75,7 @@
 			background-color: var(--color-5);
 			border: 0;
 			clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-			color: var(--white);
+			color: var(--light);
 			cursor: pointer;
 			font-size: 20px;
 			font-weight: normal;
@@ -83,9 +84,10 @@
 			position: absolute;
 			height: 60px;
 			width: 69px;
+			-webkit-tap-highlight-color: transparent;
 		}
-		.hex-cell:active {
-			background-color: var(--white);
+		.hex-cell-active {
+			background-color: var(--light);
 			color: var(--dark);
 		}
 		.hex-letter {
@@ -149,8 +151,8 @@
         .edit-area {
         	display: none;
 			margin-top: 40px;
+			padding-top: 10px;
 			border: 1px solid #ccc;
-			padding: 15px;
 			border-radius: 5px;
 		}
 		.edit-button {
@@ -162,21 +164,27 @@
 			text-underline-position: under;
 		}
 		.edit-input {
+			background-color: var(--color-1m);
 			border: 0;
+			box-sizing: border-box;
+			color: var(--light);
 			font-size: 16px;
 			height: 25px;
-			width: 100%;
-			margin: 3px;
+			width: 80%;
+			margin: 3px 10%;
+		}
+		.edit-input::placeholder {
+			color: var(--color-6m);
 		}
         #current-word {
         	font-size: 2rem;
-			color: var(--white);
+			color: var(--light);
 			height: 1.6rem;
 			margin-bottom: 20px;
 			text-align: center;
 		}
 		.letter {
-			color: var(--white);
+			color: var(--light);
 			padding: 0;
 			margin: 0;
 		}
@@ -220,7 +228,7 @@
 			font-size: 1rem;
 		}
 		#rank-bar {
-			border: 1px solid var(--white);
+			border: 1px solid var(--light);
 			border-radius: 10px;
 			margin-top: 2px;
 			height: 15px;
@@ -239,9 +247,9 @@
 		}
 		.word-container {
 			background-color: var(--color-1);
-			border: 1px solid var(--white);
+			border: 1px solid var(--light);
 			border-radius: 20px;
-			color: var(--white);
+			color: var(--light);
 			text-align: center;
 			overflow: hidden;
 			padding-top: 2px;
@@ -253,7 +261,7 @@
 			z-index: 10;
 		}
 		#word-list-dropdown-arrow {
-			color: var(--white);
+			color: var(--light);
 			position: absolute;
 			top: 55px;
 			right: 10px;
@@ -276,6 +284,9 @@
 			display: none;
 			flex-flow: column wrap;
 			height: 100%;
+		}
+		#last-word {
+			padding-top: 2px;
 		}
 		.words-appear {
 			animation: fade-in 0.1s ease-in normal;
@@ -496,7 +507,7 @@
 			</svg>
 		</div>
 		<div id="word-container" class="word-container">
-			<span id="last-word" class="text"></span>
+			<div id="last-word" class="text"></div>
 			<div id="words-container"></div>
 		</div>
 	</div>
@@ -531,8 +542,8 @@
     </div>
 
     <div id="edit-area" class="edit-area">
-        <input type="text" id="edit-input" class="edit-input" maxlength="7" placeholder="enter 7 letters">
-        <input type="number" id="score-input" class="edit-input" placeholder="enter max score">
+        <input type="text" id="edit-input" class="text edit-input" maxlength="7" placeholder="enter 7 letters">
+        <input type="number" id="score-input" class="text edit-input" placeholder="enter max score (default 200)">
         <div class="controls row-controls">
 	        <button class="edit-button" onclick="finishEdit()">Finish Edit</button>
 	        <button class="edit-button" onclick="toggleEdit(false)">Cancel Edit</button>
@@ -600,10 +611,17 @@
             const makeButton = (letter, index) => {
             	const btn = document.createElement('button');
                 btn.className = 'hex-cell letters text cell-' + index;
-                btn.onclick = () => {
+                btn.onpointerdown = () => {
                     currentWordArray.push(letter);
                     updateDisplay();
+                    btn.classList.add('hex-cell-active');
                 };
+                btn.onpointerup = () => {
+                	btn.classList.remove('hex-cell-active');
+                }
+                btn.onpointerout = () => {
+                	btn.classList.remove('hex-cell-active');
+                }
                 const btnltr = document.createElement('span');
                 btnltr.className = 'hex-letter';
                 btnltr.textContent = letter;
@@ -689,7 +707,7 @@
         	replaceChildren(wordsContainer);
         	const sortedWords = savedWords.toSorted((w1, w2) => {
         		if (w1.length == w2.length) {
-        			return w1 - w2;
+        			return w1.localeCompare(w2);
         		}
         		else if (w1.length < w2.length) {
         			return -1;
@@ -759,7 +777,7 @@
             if (!dictionary.has(word)) return renderError('not in dictionary');
 
             const savedWords = getSavedWords();
-            if (savedWords.indexOf(word) >= 0) return renderError('already used');
+            if (savedWords.indexOf(word) >= 0) return renderError('already found');
 
             savedWords.push(word);
             localStorage.setItem('savedWords', JSON.stringify(savedWords));
@@ -836,7 +854,7 @@
 					wordContainer.classList.add('collapse');
 					words.style.display = 'none';
 					const lastWord = document.getElementById('last-word');
-					lastWord.style.display = 'inline';
+					lastWord.style.display = 'block';
 					toggleWords(lastWord, true);
 				}, 100);
 			} else {
