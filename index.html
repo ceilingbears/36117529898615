@@ -32,28 +32,39 @@
         }
         #game-area {
         	max-width: 500px;
-        	margin: auto;
         	position: relative;
+        	display: flex;
+		    flex-direction: column;
+		    min-height: 100vh;
+		    margin: auto;
+        }
+        #buffer-area {
+        	flex: 1;
+        }
+        #main-area {
+        	width: 100%;
         }
         button {
-        	font-size: 1.2rem;
-        	padding: 13px 10px;
+        	font-size: 0.9rem;
+        	padding: 8px 5px;
         }
         .play-button {
         	background-color: var(--color-1);
         	border: 1px solid var(--light);
+        	border-radius: 20px;
         	color: var(--light);
         	margin: auto;
         }
         .play-button:active {
-        	background-color: var(--color-1);
+        	background-color: var(--light-gray);
         }
         .submit-button {
-        	min-width: 50%;
+        	min-width: 40%;
         }
         .shuffle-button {
         	background-color: transparent;
         	border: none;
+        	color: var(--light);
         	border-radius: 50%;
         	padding: 0;
         	height: 60px;
@@ -87,12 +98,14 @@
 			-webkit-tap-highlight-color: transparent;
 		}
 		.hex-cell-active {
-			background-color: var(--light);
-			color: var(--dark);
+			background-color: var(--light) !important;
+			color: var(--dark) !important;
 		}
 		.hex-letter {
 			animation-duration: 0.5s;
 			animation-name: fade-in;
+			user-select: none;
+			-webkit-user-select: none;
 		}
 		.cell-0 .hex-letter {
 			animation-name: none;
@@ -114,7 +127,6 @@
 		.cell-3 {
 			left: calc(50% + 21px);
 			top: 97px;
-			
 		}
 		.cell-4 {
 			left: calc(50% - 35px);
@@ -140,7 +152,7 @@
 		}
 		.row-controls {
   			justify-content: center;
-			gap: 15px;
+  			gap: 10px;
 		}
 		.row-controls button {
 			flex: 1 1 0px;
@@ -150,18 +162,30 @@
 		}
         .edit-area {
         	display: none;
-			margin-top: 40px;
-			padding-top: 10px;
-			border: 1px solid #ccc;
-			border-radius: 5px;
+			border: none;
+			height: 150px;
+		}
+		.control-section {
+			height: 150px;
+			margin-bottom: 20px;
 		}
 		.edit-button {
 			background-color: transparent;
-			border: none;
+			border: 1px solid var(--color-6);
+			border-radius: 20px;
 			color: var(--color-6);
 			font-size: 1rem;
-			text-decoration: underline;
-			text-underline-position: under;
+			margin: auto;
+		}
+		.edit-button:active {
+			background-color: var(--light-gray);
+		}
+		.edit-controls .edit-button {
+			min-width: 40%;
+		}
+		.row-controls .edit-button {
+			margin-top: 10px;
+			max-width: 30%;
 		}
 		.edit-input {
 			background-color: var(--color-1m);
@@ -219,7 +243,6 @@
 			text-align: center;
 			text-transform: lowercase;
 			margin: 15px auto;
-			margin-top: 70px;
 		}
 		.error-text {
 			animation-duration: 0.2s;
@@ -254,7 +277,7 @@
 			overflow: hidden;
 			padding-top: 2px;
 			position: absolute;
-			top: 45px;
+			top: 50px;
 			left: 0;
 			height: 23px;
 			width: 100%;
@@ -263,7 +286,7 @@
 		#word-list-dropdown-arrow {
 			color: var(--light);
 			position: absolute;
-			top: 55px;
+			top: 60px;
 			right: 10px;
 			z-index: 12;
 		}
@@ -299,7 +322,7 @@
 		.uncollapse {
 			animation: open-word-list 0.2s ease-in normal;
 			border-radius: 0;
-			height: 90%;
+			height: 91%;
 		}
 		.collapse {
 			animation: close-word-list 0.2s ease-in normal;
@@ -365,6 +388,7 @@
 		}
 		#new-score {
 			position: relative;
+			height: 45px;
 		}
 		.new-score {
 			animation: new-score-popup 0.8s linear normal;
@@ -376,10 +400,10 @@
 			z-index: -1;
 		}
 		.score-1 {
-			color: var(--color-1m);
+			color: var(--color-5);
 		}
 		.score-5 {
-			color: var(--color-5);
+			color: var(--color-5m);
 		}
 		.score-6 {
 			color: var(--color-6);
@@ -490,65 +514,70 @@
 </head>
 <body>
 	<div id="game-area">
-	<div id="score-bar" class="text">
-		<div id="score-num">0</div>
-		<div id="score-rank">rank</div>
-		<div id="score-next">next | 0</div>
-	</div>
-
-	<div id="rank-bar">
-	</div>
-
-	<div id="word-list">
-		<div id="word-list-dropdown" onclick="dropDownWordList()"></div>
-		<div id="word-list-dropdown-arrow" onclick="dropDownWordList()">
-			<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org">
-			  <polygon points="0,0 100,0 50,50" fill="currentColor" />
-			</svg>
+	<div id="top-area">
+		<div id="score-bar" class="text">
+			<div id="score-num">0</div>
+			<div id="score-rank">rank</div>
+			<div id="score-next">next | 0</div>
 		</div>
-		<div id="word-container" class="word-container">
-			<div id="last-word" class="text"></div>
-			<div id="words-container"></div>
+
+		<div id="rank-bar">
+		</div>
+
+		<div id="word-list">
+			<div id="word-list-dropdown" onclick="dropDownWordList()"></div>
+			<div id="word-list-dropdown-arrow" onclick="dropDownWordList()">
+				<svg viewBox="0 0 100 50" preserveAspectRatio="none" xmlns="http://www.w3.org">
+				  <polygon points="0,0 100,0 50,50" fill="currentColor" />
+				</svg>
+			</div>
+			<div id="word-container" class="word-container">
+				<div id="last-word" class="text"></div>
+				<div id="words-container"></div>
+			</div>
 		</div>
 	</div>
+	<div id="buffer-area"></div>
+	<div id="main-area">
 
-	<div id="error-bar" class="letters text">
-		<div class="error-text"></div>
+		<div id="new-score"></div>
+
+		<div id="error-bar" class="letters text">
+			<div class="error-text"></div>
+		</div>
+
+	    <div id="current-word" class="letters text"></div>
+
+	    <div class="hex-container" id="letter-buttons">
+	    </div>
+
+	    <div id="control-area" class="control-group control-section">
+	    	<div class="controls">
+		        <button class="play-button submit-button" onclick="submitWord()">Submit</button>
+		    </div>
+	        <div class="controls row-controls">
+	        	<button class="play-button" onclick="clearWord()">Clear</button>
+	        	<div class="shuffle-container">
+		        	<button class="play-button shuffle-button" onclick="shuffleButtons()">
+						<svg width="60" height="60" fill="currentColor" stroke="currentColor" version="1.1" viewBox="0 0 132.29 132.29" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90 66.351 66.46)"><path d="m17.842 66.46c0-26.795 21.718-48.517 48.509-48.517 15.399-1e-6 29.122 7.1763 38.008 18.368" fill="none" stroke-width="3.175"/><path d="m114.86 66.46c0 26.795-21.718 48.517-48.509 48.517-15.399 0-29.122-7.1763-38.008-18.368" fill="none" stroke-width="3.175"/><path d="m120.2 66.46h-10.685l5.3427-8.5553z" stroke-width="2.3468"/><path d="m12.499 66.46h10.685l-5.3427 8.5553z" stroke-width="2.3468"/></g><g transform="matrix(.49436 0 0 .49436 32.935 32.741)"><path transform="matrix(.29396 .078703 -.078767 .29372 67.733 88.928)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none"  stroke-width="21.112"/><path transform="matrix(.14621 .039145 -.039177 .14609 67.733 51.156)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none"  stroke-width="42.446"/><g  stroke="none"><path d="m96.885 88.928h-58.304l7.288-12.613h43.728z"/><path d="m45.869 101.54h43.728"/><path d="m45.869 101.54h43.728l-7.288 12.613h-29.152z"/></g><g fill="none"  stroke-width="6.4224"><path d="m75.021 115.57-7.288 12.613-7.288-12.613"/><path d="m126.55 63.703h-44.243l22.121 21.928z"/><path d="m53.157 63.703h-44.243l22.121 21.928z"/><path d="m75.253 38.792 12.672-22.028"/></g><path d="m83.998 23.591v-23.591l23.591 23.591z"  stroke="none"/><path d="m60.484 38.609-12.672-22.028" fill="none"  stroke-width="6.4224"/><path d="m51.739 23.408v-23.591l-23.591 23.591z"  stroke="none"/></g></svg>
+		        	</button>
+	        	</div>
+		        <button class="play-button" onclick="deleteWord()">Delete</button>
+		    </div>
+		    <div class="controls edit-controls">
+		        <button class="edit-button" onclick="toggleEdit(true)">Edit</button>
+		    </div>
+	    </div>
+
+	    <div id="edit-area" class="edit-area control-section">
+	        <input type="text" id="edit-input" class="text edit-input" maxlength="7" placeholder="enter 7 letters">
+	        <input type="number" id="score-input" class="text edit-input" placeholder="enter max score (default 200)">
+	        <div class="controls row-controls">
+		        <button class="edit-button" onclick="finishEdit()">Finish Edit</button>
+		        <button class="edit-button" onclick="toggleEdit(false)">Cancel Edit</button>
+		    </div>
+	    </div>
 	</div>
-
-	<div id="new-score"></div>
-
-    <div id="current-word" class="letters text"></div>
-
-    <div class="hex-container" id="letter-buttons">
-    </div>
-
-    <div id="control-area" class="control-group">
-    	<div class="controls">
-	        <button class="play-button submit-button" onclick="submitWord()">Submit</button>
-	    </div>
-	    <div class="controls">
-        	<button class="play-button shuffle-button" onclick="shuffleButtons()">
-				<svg width="60" height="60" fill="currentColor" stroke="currentColor" version="1.1" viewBox="0 0 132.29 132.29" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-90 66.351 66.46)"><path d="m17.842 66.46c0-26.795 21.718-48.517 48.509-48.517 15.399-1e-6 29.122 7.1763 38.008 18.368" fill="none" stroke-width="3.175"/><path d="m114.86 66.46c0 26.795-21.718 48.517-48.509 48.517-15.399 0-29.122-7.1763-38.008-18.368" fill="none" stroke-width="3.175"/><path d="m120.2 66.46h-10.685l5.3427-8.5553z" stroke-width="2.3468"/><path d="m12.499 66.46h10.685l-5.3427 8.5553z" stroke-width="2.3468"/></g><g transform="matrix(.49436 0 0 .49436 32.935 32.741)"><path transform="matrix(.29396 .078703 -.078767 .29372 67.733 88.928)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none"  stroke-width="21.112"/><path transform="matrix(.14621 .039145 -.039177 .14609 67.733 51.156)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none"  stroke-width="42.446"/><g  stroke="none"><path d="m96.885 88.928h-58.304l7.288-12.613h43.728z"/><path d="m45.869 101.54h43.728"/><path d="m45.869 101.54h43.728l-7.288 12.613h-29.152z"/></g><g fill="none"  stroke-width="6.4224"><path d="m75.021 115.57-7.288 12.613-7.288-12.613"/><path d="m126.55 63.703h-44.243l22.121 21.928z"/><path d="m53.157 63.703h-44.243l22.121 21.928z"/><path d="m75.253 38.792 12.672-22.028"/></g><path d="m83.998 23.591v-23.591l23.591 23.591z"  stroke="none"/><path d="m60.484 38.609-12.672-22.028" fill="none"  stroke-width="6.4224"/><path d="m51.739 23.408v-23.591l-23.591 23.591z"  stroke="none"/></g></svg>
-        	</button>
-        </div>
-        <div class="controls row-controls">
-        	<button class="play-button" onclick="clearWord()">Clear</button>
-	        <button class="play-button" onclick="deleteWord()">Delete</button>
-	    </div>
-	    <div class="controls row-controls edit-controls">
-	        <button class="edit-button" onclick="toggleEdit(true)">Edit</button>
-	    </div>
-    </div>
-
-    <div id="edit-area" class="edit-area">
-        <input type="text" id="edit-input" class="text edit-input" maxlength="7" placeholder="enter 7 letters">
-        <input type="number" id="score-input" class="text edit-input" placeholder="enter max score (default 200)">
-        <div class="controls row-controls">
-	        <button class="edit-button" onclick="finishEdit()">Finish Edit</button>
-	        <button class="edit-button" onclick="toggleEdit(false)">Cancel Edit</button>
-	    </div>
-    </div>
 	</div>
 
     <script>
@@ -659,18 +688,21 @@
         	renderRank(score);
         }
 
-        function popUpScore(score) {
+        function popUpScore(word) {
+        	const score = scoreWord(word);
         	const scoreEl = document.createElement('div');
         	scoreEl.className = 'text new-score';
-        	scoreEl.textContent = '+' + score;
-        	if (score >= 14) {
+        	if (isPangram(word)) {
         		scoreEl.classList.add('score-s');
+        		scoreEl.textContent = '+pangram';
         	}
         	else if (score >= 7) {
         		scoreEl.classList.add('score-7');
+        		scoreEl.textContent = '+' + score;
         	}
         	else {
         		scoreEl.classList.add('score-'+score);
+        		scoreEl.textContent = '+' + score;
         	}
         	const scoreBarEl = document.getElementById('new-score');
         	replaceChildren(scoreBarEl, scoreEl);
@@ -783,7 +815,7 @@
             localStorage.setItem('savedWords', JSON.stringify(savedWords));
             renderScore(savedWords);
             document.getElementById('last-word').textContent = word;
-            popUpScore(scoreWord(word));
+            popUpScore(word);
             
             currentWordArray = [];
             updateDisplay();
