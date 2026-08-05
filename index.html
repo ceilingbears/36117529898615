@@ -644,6 +644,9 @@
 			}
 			if (!childEls) return;
 			childEls.forEach(el => parentEl.appendChild(el));
+			let oldStyle = parentEl.style.display;
+			parentEl.style.display = 'none';
+			parentEl.style.display = oldStyle;
         }
 
         function renderLetters(input) {
