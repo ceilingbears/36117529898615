@@ -613,6 +613,7 @@
 	        </div>
 	        <div class="controls row-controls">
 		        <button class="edit-button" onclick="finishEdit()">finish edit</button>
+		        <div class="text score-1">v5.2</div>
 		        <button class="edit-button" onclick="toggleEdit(false)">cancel edit</button>
 		    </div>
 	    </div>
@@ -646,7 +647,9 @@
 			childEls.forEach(el => parentEl.appendChild(el));
 			let oldStyle = parentEl.style.display;
 			parentEl.style.display = 'none';
+			const dummyHeight = parentEl.offsetHeight;
 			parentEl.style.display = oldStyle;
+			return dummyHeight;
         }
 
         function renderLetters(input) {
