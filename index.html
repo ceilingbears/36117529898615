@@ -195,6 +195,9 @@
 			margin-top: 10px;
 			max-width: 30%;
 		}
+		.row-controls .random-button {
+			margin-top: 0;
+		}
 		.edit-input {
 			background-color: var(--color-1m);
 			border: 0;
@@ -208,6 +211,23 @@
 		.edit-input::placeholder {
 			color: var(--color-6m);
 		}
+		.input-row {
+			margin: 3px 10%;
+			padding: 0;
+		}
+		.input-row .edit-input-left {
+			width: 49%;
+			display: inline;
+			margin: 0;
+			margin-right: auto;
+		}
+		.input-row .edit-input-right {
+			width: 49%;
+			display: inline;
+			margin: 0;
+			margin-left: auto;
+			float: right;
+		}
         #current-word {
         	font-size: 2rem;
 			color: var(--light);
@@ -217,6 +237,7 @@
 		}
 		.letter {
 			color: var(--light);
+			display: inline;
 			padding: 0;
 			margin: 0;
 		}
@@ -582,8 +603,14 @@
 	    </div>
 
 	    <div id="edit-area" class="edit-area control-section">
-	        <input type="text" id="edit-input" class="text edit-input" maxlength="7" placeholder="enter 7 letters">
-	        <input type="number" id="score-input" class="text edit-input" placeholder="enter max score (default 200)">
+	    	<div class="controls row-controls">
+		        <button class="random-button edit-button" onclick="randomize()">random</button>
+		    </div>
+	        <input type="text" id="edit-input" class="text edit-input" maxlength="7" placeholder="7 letters">
+	        <div class="input-row">
+		        <input type="number" id="score-input" class="text edit-input edit-input-left" placeholder="top rank score (optional)">
+		        <input type="number" id="score-max-input" class="text edit-input edit-input-right" placeholder="max score (optional)">
+	        </div>
 	        <div class="controls row-controls">
 		        <button class="edit-button" onclick="finishEdit()">finish edit</button>
 		        <button class="edit-button" onclick="toggleEdit(false)">cancel edit</button>
@@ -601,12 +628,13 @@
 		  });
 		}
 
-    	let goldLetter = 'a';
-        let letters = ['b', 'c', 'd', 'e', 'f', 'g'];
+    	let goldLetter = 'x';
+        let letters = ['x', 'x', 'x', 'x', 'x', 'x'];
         let currentWordArray = [];
         let dictionary = new Set();
+        let sevensArray = []
         let maxScore = 200;
-        const rankPercents = [0, 0.025, 0.07, 0.12, 0.21, 0.35, 0.56, 0.71, 1];
+        const rankPercents = [0, 0.02, 0.05, 0.1, 0.15, 0.25, 0.4, 0.5, 0.7];
         let rank = 0;
 
         function replaceChildren(parentEl, ...childEls) {
@@ -641,7 +669,7 @@
 
         function initializeLetters() {
         	if (!renderLetters()) {
-        		localStorage.setItem('letters', 'abcdefg');
+        		localStorage.setItem('letters', 'xxxxxxx');
         		renderLetters();
         	}
         }
@@ -677,8 +705,19 @@
             });
         }
 
-        function scoreWord(word) {
-        	if (!word || word.length < 4 || word.indexOf(goldLetter) < 0) return 0;
+        function scoreWord(word, useLetters) {
+        	let usedLetters = letters;
+        	let usedGoldLetter = goldLetter;
+        	if (useLetters) {
+        		usedLetters = useLetters;
+        		usedGoldLetter = useLetters[0];
+        	}
+        	for (const letter of word) {
+        		if (letter !== usedGoldLetter && usedLetters.indexOf(letter) < 0) {
+        			return 0;
+        		}
+        	}
+        	if (!word || word.length < 4 || word.indexOf(usedGoldLetter) < 0) return 0;
         	if (word.length == 4) return 1;
         	if (isPangram(word)) return word.length + 7;
         	else return word.length;
@@ -798,13 +837,16 @@
         	renderError('');
             const letterEls = [];
             currentWordArray.forEach(letter => {
-            	const l = document.createElement('span');
+            	const l = document.createElement('div');
             	l.textContent = letter;
             	l.className = letter === goldLetter ? 'letter gold-letter' : 'letter';
             	letterEls.push(l);
             });
             if (letterEls.length == 0) {
-            	letterEls.push(document.createElement('span'));
+            	const l = document.createElement('div');
+            	l.textContent = '';
+            	l.className = 'letter';
+            	letterEls.push(l);
             }
             replaceChildren(document.getElementById('current-word'), ...letterEls);
         }
@@ -939,14 +981,32 @@
             if (!show) document.getElementById('edit-input').value = '';
         }
 
+        function randomize() {
+        	const randomSeven = sevensArray[Math.floor(Math.random() * sevensArray.length)];
+        	const randomSevenSet = new Set(randomSeven.split(''));
+        	const scrambledSeven = derange(Array.from(randomSevenSet)).join('');
+        	const sevenScore = getMaxScoreFromLetters(scrambledSeven);
+
+        	document.getElementById('edit-input').value = scrambledSeven;
+            document.getElementById('score-input').value = Math.floor(rankPercents[rankPercents.length - 1] * sevenScore);
+            document.getElementById('score-max-input').value = sevenScore;
+        }
+
         function finishEdit() {
             const input = document.getElementById('edit-input').value;
             const score = document.getElementById('score-input').value;
-            if (score) {
+            const scoreMax = document.getElementById('score-max-input').value;
+            function setMaxScore(score) {
             	toggleEdit(false);
             	maxScore = score;
             	localStorage.setItem('maxScore', score);
                 renderScore(getSavedWords());
+            }
+            if (score) {
+            	setMaxScore(Math.floor(score / 0.7));
+            }
+            if (scoreMax) {
+            	setMaxScore(scoreMax);
             }
             if (input && renderLetters(input)) {
                 toggleEdit(false);
@@ -955,19 +1015,40 @@
                 document.getElementById('last-word').textContent = '';
                 renderScore([]);
             }
+            if (!score && !scoreMax) {
+            	setMaxScore(getMaxScoreFromLetters());
+            }
+            console.log('max score: ' + maxScore);
+        }
+
+        function getMaxScoreFromLetters(usedLetters) {
+        	let totalScore = 0;
+        	for (const w of dictionary) {
+        		totalScore += scoreWord(w, usedLetters);
+        	}
+        	return Math.floor(totalScore * 0.4);
         }
 
         async function loadWords() {
 		  try {
-		  	// sourced from https://github.com/meetDeveloper/freeDictionaryAPI
 		    const response = await fetch('lib/english-final.txt');
 		    if (!response.ok) {
 		      throw new Error(`HTTP error! status: ${response.status}`);
 		    }
+
 		    const text = await response.text();
 		    const wordsArray = text.split('\n');
 		    dictionary = new Set(wordsArray);
 		    console.log('Loaded ' + wordsArray.length + ' words');
+
+		    const response2 = await fetch('lib/7s-final2.txt');
+		    if (!response2.ok) {
+		      throw new Error(`HTTP error! status: ${response.status}`);
+		    }
+
+		    const textSevens = await response2.text();
+		    sevensArray = textSevens.split('\n');
+		    console.log('Loaded ' + sevensArray.length + ' sevens words');
 		  } catch (error) {
 		    console.error("Could not load words:", error);
 		  }

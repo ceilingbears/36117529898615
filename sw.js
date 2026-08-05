@@ -1,9 +1,10 @@
-const VERSION = "v4";
+const VERSION = "v5";
 const CACHE_NAME = `bee-cache-${VERSION}`;
 const ASSETS = [
   '.',
   './index.html',
-  './lib/english-final.txt'
+  './lib/english-final.txt',
+  './lib/7s-final2.txt'
 ];
 
 self.addEventListener("install", (e) => {
