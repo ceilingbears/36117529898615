@@ -1,4 +1,4 @@
-const VERSION = "v5.3";
+const VERSION = "v5.4";
 const CACHE_NAME = `bee-cache-${VERSION}`;
 const ASSETS = [
   '.',

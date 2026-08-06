@@ -460,6 +460,9 @@
 		.score-s {
 			color: var(--color-s);
 		}
+		#errors {
+			color: white;
+		}
 		@keyframes fade-in {
 		  0% {
 		    opacity: 0%;
@@ -549,6 +552,7 @@
     </style>
 </head>
 <body>
+	<div id="errors"></div>
 	<svg style="display: none;" version="1.1" xmlns="http://www.w3.org/2000/svg">
 		<symbol id="bee-icon" fill="currentColor" stroke="currentColor" viewBox="0 0 135.47 135.47">
 			<path transform="matrix(.29396 .078703 -.078767 .29372 67.733 88.928)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none" stroke-width="21.744"/><path transform="matrix(.14621 .039145 -.039177 .14609 67.733 51.156)" d="m67.733 67.733-92.525 24.792-67.733-67.733 24.792-92.525 92.525-24.792 67.733 67.733z" fill="none" stroke-width="43.716"/><path d="m96.885 88.928h-58.304l7.288-12.613h43.728z"/><path d="m45.869 101.54h43.728"/><path d="m45.869 101.54h43.728l-7.288 12.613h-29.152z"/><g fill="none"><g stroke-width="6.6146"><path d="m75.021 115.57-7.288 12.613-7.288-12.613"/><path d="m126.55 63.703h-44.243l22.121 21.928z"/><path d="m53.157 63.703h-44.243l22.121 21.928z"/></g><path d="m75.253 38.792 12.672-22.028" stroke-width="5.2917"/></g><path d="m83.998 23.591v-23.591l23.591 23.591z"/><path d="m60.484 38.609-12.672-22.028" fill="none" stroke-width="5.2917"/><path d="m51.739 23.408v-23.591l-23.591 23.591z"/>
@@ -629,7 +633,7 @@
 	        </div>
 	        <div class="controls row-controls">
 		        <button class="edit-button" onclick="finishEdit()">finish edit</button>
-		        <div class="text score-1 version">v5.3</div>
+		        <div class="text score-1 version">v5.4</div>
 		        <button class="edit-button" onclick="toggleEdit(false)">cancel edit</button>
 		    </div>
 	    </div>
@@ -1043,7 +1047,7 @@
         function randomize() {
         	const randomSeven = sevensArray[Math.floor(Math.random() * sevensArray.length)];
         	const randomSevenSet = new Set(randomSeven.split(''));
-        	const scrambledSeven = derange(Array.from(randomSevenSet)).join('');
+        	const scrambledSeven = derange(derange(Array.from(randomSevenSet))).join('');
         	const sevenScore = getMaxScoreFromLetters(scrambledSeven);
 
         	document.getElementById('edit-input').value = scrambledSeven;
@@ -1092,7 +1096,7 @@
 		  try {
 		    const response = await fetch('lib/english-final.txt');
 		    if (!response.ok) {
-		      throw new Error(`HTTP error! status: ${response.status}`);
+		      throw new Error(`HTTP error! status: ${response.status} ${response.statusText} ${response.url}`);
 		    }
 
 		    const text = await response.text();
@@ -1102,7 +1106,8 @@
 
 		    const response2 = await fetch('lib/7s-final2.txt');
 		    if (!response2.ok) {
-		      throw new Error(`HTTP error! status: ${response.status}`);
+		    	console.log(response2);
+		      throw new Error(`HTTP error! status: ${response2.status} ${response2.statusText} ${response2.url}`);
 		    }
 
 		    const textSevens = await response2.text();
@@ -1110,6 +1115,7 @@
 		    console.log('Loaded ' + sevensArray.length + ' sevens words');
 		  } catch (error) {
 		    console.error("Could not load words:", error);
+		    document.getElementById('errors').textContent = error;
 		  }
 		}
 
