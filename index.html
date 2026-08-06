@@ -172,6 +172,7 @@
         	display: none;
 			border: none;
 			height: 150px;
+			position: relative;
 		}
 		.control-section {
 			height: 150px;
@@ -197,6 +198,17 @@
 		}
 		.row-controls .random-button {
 			margin-top: 0;
+		}
+		.extra-edits {
+			position: absolute;
+			text-align: center;
+			top: -100%;
+			width: 100%;
+		}
+		#sort-control-button {
+			margin: auto;
+			padding-left: 20px;
+			padding-right: 20px;
 		}
 		.edit-input {
 			background-color: var(--color-1m);
@@ -373,6 +385,7 @@
 		}
 		.word-list-7 {
 			background-color: var(--color-7);
+			color: var(--color-5);
 		}
 		.word-list-s {
 			background-color: var(--color-s);
@@ -603,6 +616,9 @@
 	    </div>
 
 	    <div id="edit-area" class="edit-area control-section">
+	    	<div class="extra-edits">
+	    		<button id="sort-control-button" class="edit-button" onclick="setSortControl(true)"></button>
+	    	</div>
 	    	<div class="controls row-controls">
 		        <button class="random-button edit-button" onclick="randomize()">random</button>
 		    </div>
@@ -637,6 +653,8 @@
         let maxScore = 200;
         const rankPercents = [0, 0.02, 0.05, 0.1, 0.15, 0.25, 0.4, 0.5, 0.7];
         let rank = 0;
+        let sortControls = ['Sorting word list by length', 'Sorting word list alphabetically'];
+        let sortControl = -1;
 
         function replaceChildren(parentEl, ...childEls) {
 			if (!parentEl) return;
@@ -709,6 +727,29 @@
                 makeButton(letter, i);
                 i++;
             });
+        }
+
+        function setSortControl(toggle) {
+        	if (toggle) {
+        		sortControl++;
+        	}
+        	else {
+        		const localControl = localStorage.getItem('sortControl');
+	        	if (localControl) {
+	        		sortControl = localControl;
+	        	}
+	        	else {
+	        		sortControl = 0;
+	        	}
+        	}
+        	if (sortControl >= sortControls.length || sortControl < 0) {
+        		sortControl = 0;
+        	}
+        	if (toggle) {
+        		localStorage.setItem('sortControl', sortControl);
+        	}
+        	document.getElementById('sort-control-button').textContent = sortControls[sortControl];
+        	updateWordList(getSavedWords());
         }
 
         function scoreWord(word, useLetters) {
@@ -803,7 +844,7 @@
         function updateWordList(savedWords) {
         	const wordsContainer = document.getElementById('words-container');
         	replaceChildren(wordsContainer);
-        	const sortedWords = savedWords.toSorted((w1, w2) => {
+        	const sortByLength = (w1, w2) => {
         		if (w1.length == w2.length) {
         			return w1.localeCompare(w2);
         		}
@@ -811,6 +852,17 @@
         			return -1;
         		}
         		else return 1;
+        	};
+        	const sortByAlpha = (w1, w2) => {
+        		return w1.localeCompare(w2);
+        	};
+        	const sortedWords = savedWords.toSorted((w1, w2) => {
+        		if (sortControl == 1) {
+        			return sortByAlpha(w1, w2);
+        		}
+        		else {
+        			return sortByLength(w1, w2);
+        		}
         	});
         	sortedWords.forEach(w => {
         		const wordEl = document.createElement('div');
@@ -984,6 +1036,7 @@
         function toggleEdit(show) {
             document.getElementById('edit-area').style.display = show ? 'block' : 'none';
             document.getElementById('control-area').style.display = show ? 'none' : 'block';
+            document.getElementById('letter-buttons').style.display = show ? 'none' : 'block';
             if (!show) document.getElementById('edit-input').value = '';
         }
 
@@ -1068,15 +1121,26 @@
 			return (localStorage.getItem('maxScore') || 200);
 		}
 
+		function setInputListeners() {
+			const inputs = document.querySelectorAll('input');
+			for (const input of inputs) {
+				input.addEventListener('focus', (event) => {
+				  	event.target.value = '';
+				});
+			}
+		}
+
 		function startUp() {
 			loadWords();
 	        initializeLetters();
 	        maxScore = getSavedMaxScore();
 	        const savedWords = getSavedWords();
+	        setSortControl();
 	        renderScore(savedWords);
 	        if (savedWords.length > 0) {
 	        	document.getElementById('last-word').textContent = savedWords[savedWords.length - 1];
 	        }
+	        setInputListeners();
 		}
 
 		startUp();
